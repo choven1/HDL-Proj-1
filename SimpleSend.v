@@ -10,9 +10,10 @@ module SimpleSend(dataOut,Go,clk,reset,Ready2Go);
 	parameter   [3:1]  NumLEDs = 3'b101;
 	wire		shipGRB, Done, allDone;
 	wire [1:0]	qmode;
-	wire		LoadGRBPattern, ShiftPattern, StartCoding, ClrCounter, IncCounter, theBit, bdone, Cycle;
+	wire		LoadGRBPattern, ShiftPattern, StartCoding, ClrCounter, IncCounter, theBit, bdone, Cycle, SendColor;
 	wire [7:0]	Count;
-	wire [119:0] GRBSeq;
+	wire [119:0] GRBSeq,CylonGRBSeq;
+  wire [4:0] Color;
 
 	SSStateMachine	sssm(shipGRB,Done,Cycle,clk,reset,allDone,Ready2Go);
 	GRBStateMachine grbsm(qmode,Done,LoadGRBPattern,ShiftPattern,StartCoding,ClrCounter,IncCounter,
@@ -20,5 +21,7 @@ module SimpleSend(dataOut,Go,clk,reset,Ready2Go);
 	ShiftRegister   shftr(theBit,GRBSeq,LoadGRBPattern,ShiftPattern,clk,reset);
 	BitCounter	btcnt(Count,ClrCounter,IncCounter,clk,reset);
 	NZRbitGEN	nzrgn(dataOut,bdone,qmode,StartCoding,clk,reset);
-	SuperCylon patgen(GRBSeq,Cycle,Go,clk,reset);
+	//SuperCylon patgen(CylonGRBSeq,Cycle,Go,clk,reset);
+  //Selector mode(GRBSeq, CylonGRBSeq, MemoryGRBSeq);
+  ColorOutput Colors(GRBSeq,Color,SendColor,Cycle);
 endmodule
