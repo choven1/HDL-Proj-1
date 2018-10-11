@@ -13,7 +13,7 @@ module GameEngine(GRBSeq,Cycle,Go,clk,reset);
 
 	always @(posedge clk)
 		if(reset) begin
-		    Count <= 0;
+		  Count <= 0;
 			S <= 0; 
 			lvl <= 0; end
 		else if (Count [24]) begin
@@ -25,55 +25,67 @@ module GameEngine(GRBSeq,Cycle,Go,clk,reset);
 			lvl <= nlvl; end
 			
 	always @(Count)
-    if(Count [24])
-		nCount = 0;
-	else
-		nCount = Count+1;
+    if(Count [24]) nCount = 0;
+    else nCount = Count+1;
 		
 	always @(lvl, Go, S)
-		if(Go)
-			nlvl = (((S!=4'b0010)||(S!=4'b0110)) ? 0 : lvl+1);
-		else
-			nlvl = lvl;
+		if(Go) nlvl = (((S!=4'b0010)||(S!=4'b0110)) ? 0 : lvl+1);
+		else nlvl = lvl;
 
-	always @(S, Go) 
+	/*always @(S, Go, color) 
 		case(S)
-			4'b0000: nS = (Go ? S : S+1);
-			4'b0001: nS = (Go ? S : S+1);
-			4'b0010: nS = (Go ? 4'b1001 : S+1);
-			4'b0011: nS = (Go ? S : S+1);
-			4'b0100: nS = (Go ? S : S+1);
-			4'b0101: nS = (Go ? S : S+1);
-			4'b0110: nS = (Go ? 4'b1001 : S+1);
-			4'b0111: nS = (Go ? S : 4'b0000);
-			default: nS = 4'b0000;
+			4'b0000: begin GRBSeq = {RED  ,color,OFF  ,color,color}; nS = (Go ? S : S+1);       end
+			4'b0001: begin GRBSeq = {color,RED  ,OFF  ,color,color}; nS = (Go ? S : S+1);       end
+			4'b0010: begin GRBSeq = {color,color,RED  ,color,color}; nS = (Go ? 4'b1001 : S+1); end
+			4'b0011: begin GRBSeq = {color,color,OFF  ,RED  ,color}; nS = (Go ? S : S+1);       end
+			4'b0100: begin GRBSeq = {color,color,OFF  ,color,RED  }; nS = (Go ? S : S+1);       end
+			4'b0101: begin GRBSeq = {color,color,OFF  ,RED  ,color}; nS = (Go ? S : S+1);       end
+			4'b0110: begin GRBSeq = {color,color,RED  ,color,color}; nS = (Go ? 4'b1001 : S+1); end
+			4'b0111: begin GRBSeq = {color,RED  ,OFF  ,color,color}; nS = (Go ? S : 4'b0000);   end
+      4'b1000: begin GRBSeq = {OFF  ,OFF  ,OFF  ,OFF  ,OFF  };                            end
+      4'b1001: begin GRBSeq = {color,color,color,color,color};                            end
+			default: begin GRBSeq = {OFF  ,OFF  ,OFF  ,OFF  ,OFF  }; nS = 4'b0000;              end
 		endcase
-	
-	always @(S, color)
-		case(S)
-			4'b0000: GRBSeq = {RED,color,OFF,color,color};
-			4'b0001: GRBSeq = {color,RED,OFF,color,color};
-			4'b0010: GRBSeq = {color,color,RED,color,color};
-			4'b0011: GRBSeq = {color,color,OFF,RED,color};
-			4'b0100: GRBSeq = {color,color,OFF,color,RED};
-			4'b0101: GRBSeq = {color,color,OFF,RED,color};
-			4'b0110: GRBSeq = {color,color,RED,color,color};
-			4'b0111: GRBSeq = {color,RED,OFF,color,color};
-			4'b1000: GRBSeq = {OFF,OFF,OFF,OFF,OFF};
-			4'b1001: GRBSeq = {color,color,color,color,color};
-			default: GRBSeq = {OFF,OFF,OFF,OFF,OFF};
-		endcase
-		
-	always @ (lvl)
-		case (lvl)
-			3'b000: color = ORANGE;
-			3'b001: color = GREEN;
-			3'b010: color = CYAN;
-			3'b011: color = BLUE;
-			3'b100: color = VIOLET;
-			default: color = OFF;
-		endcase
+	*/
+
 	
 	assign 	Cycle = Count[24];
 endmodule
 
+module RunningGame(GRBSeq,S,lvl,Flash,Run)
+  output [119:0] GRBSeq;
+  output [3:0] S;
+  input [2:0] lvl;
+  input Flash,Run;
+
+  reg [3:0] S,nS;
+
+  always @(S, Go, color)
+    begin
+      if(Flash) begin
+        case(S)
+          4'b0000: begin GRBSeq = {RED  ,color,OFF  ,color,color}; nS = (Go ? S : S+1);     end
+          4'b0001: begin GRBSeq = {color,RED  ,OFF  ,color,color}; nS = (Go ? S : S+1);     end
+          4'b0010: begin GRBSeq = {color,color,RED  ,color,color}; nS = (Go ? S : S+1);     end
+          4'b0011: begin GRBSeq = {color,color,OFF  ,RED  ,color}; nS = (Go ? S : S+1);     end
+          4'b0100: begin GRBSeq = {color,color,OFF  ,color,RED  }; nS = (Go ? S : S+1);     end
+          4'b0101: begin GRBSeq = {color,color,OFF  ,RED  ,color}; nS = (Go ? S : S+1);     end
+          4'b0110: begin GRBSeq = {color,color,RED  ,color,color}; nS = (Go ? S : S+1);     end
+          4'b0111: begin GRBSeq = {color,RED  ,OFF  ,color,color}; nS = (Go ? S : 4'b0000); end
+          default: begin GRBSeq = {OFF  ,OFF  ,OFF  ,OFF  ,OFF  }; nS = 4'b0000;            end
+        endcase
+        end
+      //else
+    end
+
+  always @ (lvl)
+    case (lvl)
+      3'b000:  color = ORANGE;
+      3'b001:  color = GREEN;
+      3'b010:  color = CYAN;
+      3'b011:  color = BLUE;
+      3'b100:  color = VIOLET;
+      default: color = OFF;
+    endcase
+
+endmodule
