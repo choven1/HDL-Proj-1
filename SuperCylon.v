@@ -1,5 +1,5 @@
 
-module Memory(GRBSeq,Cycle,Go,clk,reset);
+module SuperCylon(GRBSeq,Cycle,Go,clk,reset);
 	output reg [119:0] GRBSeq;
 	output Cycle;
 	input	Go, clk, reset;
@@ -34,7 +34,6 @@ module Memory(GRBSeq,Cycle,Go,clk,reset);
 	
 	always @(S)
 		case(S)
-          	5'b00000: GRBSeq = 120'h000000_000000_000000_000000_000000;
 			5'b00001: GRBSeq = 120'h0000FF_000000_000000_000000_000000;
 			5'b00010: GRBSeq = 120'h00000F_0003FF_000000_000000_000000;
 			5'b00011: GRBSeq = 120'h000003_00020F_000FFF_000000_000000;
