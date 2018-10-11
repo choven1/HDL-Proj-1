@@ -1,4 +1,5 @@
-
+//IGNORE THIS FILE FOW NOW
+/*
 module GameEngine(GRBSeq,Cycle,Go,clk,reset);
 	output reg 	[119:0] GRBSeq;
 	output 	Cycle;
@@ -31,7 +32,7 @@ module GameEngine(GRBSeq,Cycle,Go,clk,reset);
 	always @(lvl, Go, S)
 		if(Go) nlvl = (((S!=4'b0010)||(S!=4'b0110)) ? 0 : lvl+1);
 		else nlvl = lvl;
-
+*/
 	/*always @(S, Go, color) 
 		case(S)
 			4'b0000: begin GRBSeq = {RED  ,color,OFF  ,color,color}; nS = (Go ? S : S+1);       end
@@ -47,7 +48,7 @@ module GameEngine(GRBSeq,Cycle,Go,clk,reset);
 			default: begin GRBSeq = {OFF  ,OFF  ,OFF  ,OFF  ,OFF  }; nS = 4'b0000;              end
 		endcase
 	*/
-
+/*
 	
 	assign 	Cycle = Count[24];
 endmodule
@@ -89,3 +90,4 @@ module RunningGame(GRBSeq,S,lvl,Flash,Run)
     endcase
 
 endmodule
+*/
