@@ -16,19 +16,19 @@ module GamePattern(GRBSeq, Cycle, S, Run, lvl, FlashCorrect, FlashWrong, Normal,
         Count <= 0;
         S <= 0; end
       else if ((Run||FlashCorrect||FlashWrong)) begin
-        if (Count[4]) S <= nS;
-        else Count <= nCount;
+        if (Count[26-lvl]) S <= nS;
+        Count <= nCount;
       end
       else S <= S;
     end
     
   always @(Count)
     begin
-      if(Count [4]) nCount = 0;
+      if(Count [26-lvl]) nCount = 0;
       else nCount = Count+1;
     end
   
-  always @(S, color)
+  always @(*)
     begin
       if (Normal) begin
         case(S)
@@ -92,6 +92,6 @@ module GamePattern(GRBSeq, Cycle, S, Run, lvl, FlashCorrect, FlashWrong, Normal,
       default: color = OFF;
     endcase
   
-  assign  Cycle = Count[4];
+  assign  Cycle = Count[26-lvl];
   
 endmodule
