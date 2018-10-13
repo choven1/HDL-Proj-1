@@ -1,13 +1,14 @@
 // Code your design here
 
-module GameEngine(GRBSeq,Cycle,Go,clk,reset);
-	output reg 	[119:0] GRBSeq;
-	output 	Cycle;
-	input	Go, clk, reset;
+module GameEngine1(GRBout,Cycle,Flag,Go,clk,reset,Run,Lvl);
+	output reg 	[119:0] GRBout;
+	output 		Cycle;
+	output reg	Flag;
+	input 		[2:0] Lvl; 
+	input		Go, clk, reset, Run;
 
 	reg [3:0]	S, nS;
 	reg [26:0] 	Count, nCount;
-	reg [2:0] 	lvl, nlvl;
 	reg [23:0] color;
 	parameter OFF = 24'h000000, RED = 24'h00FF00, ORANGE = 24'h66FF00, GREEN = 24'hFF0000;
 	parameter CYAN = 24'hFF00FF, BLUE = 24'h0000FF, VIOLET = 24'h0066FF;
@@ -15,66 +16,62 @@ module GameEngine(GRBSeq,Cycle,Go,clk,reset);
 	always @(posedge clk)
 		if(reset) begin
 		    Count <= 0;
-			S <= 0; 
-			lvl <= 0; end
-	else if (Count [24]) begin
+			S <= 0; end
+	else if (Go || Count [24]) begin
 			S <= nS;
 			Count <= nCount; end
 		else begin
 			S <= S;
-			Count <= nCount; 
-			lvl <= nlvl; end
+			Count <= nCount; end
 			
-	always @(Count)
+	always @(*)
 		if(Count [24])
-		  nCount = 0;
-	  else
-		  nCount = Count+1;
-		
-	always @(lvl, Go, S)
-		if(Go)
-      nlvl = (((S==4'b0010)||(S==4'b0110)) ? lvl+1 : 0);
+			nCount = 0;
+		else if (Run)
+			nCount = Count+1;
 		else
-			nlvl = lvl;
+			nCount = Count;
 
-	always @(S, Go) 
+	always @(*) 
 		case(S)
-			4'b0000: nS = (Go ? S : S+1);
-			4'b0001: nS = (Go ? S : S+1);
-			4'b0010: nS = (Go ? 4'b1001 : S+1);
-			4'b0011: nS = (Go ? S : S+1);
-			4'b0100: nS = (Go ? S : S+1);
-			4'b0101: nS = (Go ? S : S+1);
-			4'b0110: nS = (Go ? 4'b1001 : S+1);
-			4'b0111: nS = (Go ? S : 4'b0000);
-			default: nS = 4'b0000;
-		endcase
-	
-	always @(S, color)
-		case(S)
-			4'b0000: GRBSeq = {RED,color,OFF,color,color};
-			4'b0001: GRBSeq = {color,RED,OFF,color,color};
-			4'b0010: GRBSeq = {color,color,RED,color,color};
-			4'b0011: GRBSeq = {color,color,OFF,RED,color};
-			4'b0100: GRBSeq = {color,color,OFF,color,RED};
-			4'b0101: GRBSeq = {color,color,OFF,RED,color};
-			4'b0110: GRBSeq = {color,color,RED,color,color};
-			4'b0111: GRBSeq = {color,RED,OFF,color,color};
-			4'b1000: GRBSeq = {OFF,OFF,OFF,OFF,OFF};
-			4'b1001: GRBSeq = {color,color,color,color,color};
-			default: GRBSeq = {OFF,OFF,OFF,OFF,OFF};
+			4'b0000: begin 	GRBout = {RED,   color, OFF,   color, color}; 
+							nS = (Go ? S : S+1); end
+			4'b0001: begin 	GRBout = {color, RED,   OFF,   color, color}; 
+							nS = (Go ? S : S+1); end
+			4'b0010: begin 	GRBout = {color, color, RED,   color, color}; 
+							nS = (Go ? 4'b1000 : S+1); end
+			4'b0011: begin 	GRBout = {color, color, OFF,   RED,   color}; 
+							nS = (Go ? S : S+1); end
+			4'b0100: begin 	GRBout = {color, color, OFF,   color, RED}; 
+							nS = (Go ? S : S+1); end
+			4'b0101: begin 	GRBout = {color, color, OFF,   RED,   color}; 
+							nS = (Go ? S : S+1); end
+			4'b0110: begin 	GRBout = {color, color, RED,   color, color}; 
+							nS = (Go ? 4'b1000 : S+1); end
+			4'b0111: begin 	GRBout = {color, RED,   OFF,   color, color}; 
+							nS = (Go ? S : 4'b0000); end
+			4'b1000: begin 	GRBout = {color, color, color, color, color};
+							nS = (Run ? 4'b0000 : 4'b1000); end 
+			default: begin 	GRBout = {OFF,   OFF,   OFF,   OFF,   OFF}; 
+							nS = 4'b0000; end
 		endcase
 		
-	always @ (lvl)
-		case (lvl)
-			3'b000: color = ORANGE;
-			3'b001: color = GREEN;
-			3'b010: color = CYAN;
-			3'b011: color = BLUE;
-			3'b100: color = VIOLET;
-			default: color = OFF;
+	always @ (Lvl)
+		case (Lvl)
+			3'b000: 	color = ORANGE;
+			3'b001: 	color = GREEN;
+			3'b010: 	color = CYAN;
+			3'b011: 	color = BLUE;
+			3'b100: 	color = VIOLET;
+			default: 	color = OFF;
 		endcase
-	
+		
+	always @(*)
+	   if (S==4'b1000)
+	       Flag = 1'b1;
+	   else
+	       Flag = 1'b0;
+	               
 	assign 	Cycle = Count[24];
 endmodule
 
