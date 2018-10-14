@@ -27,7 +27,7 @@ module GameEngine1(GRBout,Cycle,Flag,Go,clk,reset,Run,Lvl);
         Count <= nCount; end
     end
 			
-	always @(*)
+  always @(*)
     begin
       if((Count[24:21]==N))
         nCount = 0;
