@@ -25,10 +25,10 @@ module GameEngine2(GRBSeq,Refresh,Run,Lvl,Go,clk,reset,GRBin,Cycle,Flag);
 			
 	always @(*)
 		if (Count[28]) begin
-		  if (Flag)
-			 nLvl = Lvl+1;
-		  else
-		      nLvl = 0; end
+		    if (Flag)
+			    nLvl = Lvl+1;
+		    else
+		        nLvl = 0; end
 		else
 			nLvl = Lvl;
 			
@@ -41,16 +41,16 @@ module GameEngine2(GRBSeq,Refresh,Run,Lvl,Go,clk,reset,GRBin,Cycle,Flag);
 			nCount = Count;
 			
 	always @(*)
-		if (S==PLAY) begin
-			if (Lvl==3'b101) 
-				nS = WIN;
-			else
-				nS = (Go ? FLASH : PLAY); end
-		else if (S==FLASH)
-			nS = (Count[28] ? PLAY : FLASH);
-		else
-			nS = (Go ? PLAY : WIN);
-		
+	   	case(S)
+	   	   PLAY: begin if (Lvl==3'b101) 
+                           nS = WIN;
+                       else
+                           nS = (Go ? FLASH : PLAY); end 
+	   	   FLASH: nS = (Count[28] ? PLAY : FLASH);
+	   	   WIN:   nS = (reset ? PLAY : WIN);
+	   	   default:	nS = PLAY;
+	   	endcase
+	   	
 	always @(*)
 	   if (S==FLASH && Count[24])
 	        GRBSeq = OFF;
