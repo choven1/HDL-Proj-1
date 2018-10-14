@@ -8,12 +8,13 @@ module GameEngine1(GRBout,Cycle,Flag,Go,clk,reset,Run,Lvl);
   input Go, clk, reset, Run;
 
   reg [3:0] S, nS;
-  reg [26:0] Count, nCount;
-  reg [23:0] color;
-  reg [3:0] N;
+  reg [24:0] Count, nCount;
+  reg [23:0] color; //assigned to current level's color for output
+  reg [3:0] N; //used to tell the patternt what speed to run at
   parameter OFF = 24'h000000, RED = 24'h00FF00, ORANGE = 24'h44FF00, GREEN = 24'hFF0000;
   parameter CYAN = 24'hFF00FF, BLUE = 24'h0000FF, VIOLET = 24'h0088FF;
 
+  //handles clock cycle assignments to state and count
   always @(posedge clk)
     begin
       if(reset) begin
@@ -26,7 +27,8 @@ module GameEngine1(GRBout,Cycle,Flag,Go,clk,reset,Run,Lvl);
         S <= S;
         Count <= nCount; end
     end
-			
+  
+  //generates a slower timing signal used for LED output
   always @(*)
     begin
       if((Count[24:21]==N))
@@ -37,6 +39,9 @@ module GameEngine1(GRBout,Cycle,Flag,Go,clk,reset,Run,Lvl);
         nCount = Count;
     end
 
+  //assigns the LED bit output and next set of colors
+  //uses state 4'b1000 to signify a successful button timing where it
+  //stays until button is pressed again
   always @(*)
     case(S)
       4'b0000: begin GRBout = {RED,   color, OFF,   color, color}; nS = (Go ? S : S+1); end
@@ -51,6 +56,7 @@ module GameEngine1(GRBout,Cycle,Flag,Go,clk,reset,Run,Lvl);
       default: begin GRBout = {OFF,   OFF,   OFF,   OFF,   OFF  }; nS = 4'b0000; end
     endcase
 		
+  //assigns the relevant bit sequence to color for LED output
   always @ (Lvl)
     case (Lvl)
       3'b000:  begin color = ORANGE; N = 4'b1110; end
@@ -62,6 +68,6 @@ module GameEngine1(GRBout,Cycle,Flag,Go,clk,reset,Run,Lvl);
     endcase
 		
   assign Flag = (S==4'b1000) ? 1'b1 : 1'b0; //win\loss condition    
-  assign Cycle = Count[21];
+  assign Cycle = Count[21]; //tells system to output LED pattern
 endmodule
 
