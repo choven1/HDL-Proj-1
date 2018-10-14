@@ -9,28 +9,26 @@
 // Updated to support new WS2812B reset code of > 280 us
 
 module SSStateMachine(shipGRB,Done,Cycle,clk,reset,allDone,Ready2Go);
-	output	shipGRB, Ready2Go;
-	input	allDone, Done, Cycle;
-	input	clk, reset;
+  output shipGRB, Ready2Go;
+  input allDone, Done, Cycle;
+  input clk, reset;
 
-	reg [1:0]	S, nS;
-	parameter	SWAIT=2'b00, SSHIP=2'b01, SRET=2'b10;
+  reg [1:0] S, nS;
+  parameter SWAIT=2'b00, SSHIP=2'b01, SRET=2'b10;
 
-	always @(posedge clk)
-		if(reset)
-			S <= SWAIT;
-		else
-			S <= nS;
+  always @(posedge clk)
+    if(reset) S <= SWAIT;
+    else S <= nS;
 
-	always @(S, Cycle, Done, allDone)
-		case(S)
-			SWAIT: 		nS = Cycle      ? SSHIP    : SWAIT;
-			SSHIP:		nS = Done    ? SRET     : SSHIP;
-			SRET:		nS = allDone ? SWAIT : SRET;
-			default:	nS = SWAIT;
-		endcase
+  always @(S, Cycle, Done, allDone)
+    case(S)
+      SWAIT  : nS = Cycle   ? SSHIP : SWAIT;
+      SSHIP  : nS = Done    ? SRET  : SSHIP;
+      SRET   : nS = allDone ? SWAIT : SRET;
+      default: nS = SWAIT;
+    endcase
 
   assign Ready2Go = (S==SWAIT);  // okay to press Go
-	assign shipGRB  = (S==SSHIP);  // send data bits
+  assign shipGRB  = (S==SSHIP);  // send data bits
 endmodule
 
